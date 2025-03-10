@@ -2,149 +2,88 @@
    :target: https://www.gnu.org/licenses/agpl-3.0
 
 =======
-Key-CNN
+Key-CNN combined with rule-based approach
 =======
 
-Key-CNN is a simple CNN-based framework for estimating harmonic properties
-of music tracks.
+This is a hybrid framework for musical key estimation that combines CNN-based and rule-based approaches.
 
-First and foremost, Key-CNN is a key estimator. To determine the global key of
-an audio file, simply run the script
+Features
+========
 
-.. code-block:: console
+- Multiple model types:
+  - CNN: Uses deep learning to predict musical key
+  - Rule-based: Uses music theory rules and signal processing
+  - Ensemble: Combines both approaches with weighted averaging
 
-    key -i my_audio.wav
+Basic Usage
+==========
 
-You may specify other models and output formats (`mirex <https://www.music-ir.org/mirex/wiki/2019:Audio_Key_Detection>`_,
-`JAMS <https://github.com/marl/jams>`_) via command line parameters.
-
-E.g. to create JAMS as output format and a deepsquare model used in the SMC
-paper [1], please run
-
-.. code-block:: console
-
-    key -m deepsquare --jams -i my_audio.wav
-
-
-To use one of the ``DeepSpec`` models from [1] (see also repo
-`directional_cnns <https://github.com/hendriks73/directional_cnns>`_), run
+To analyze the key of an audio file:
 
 .. code-block:: console
 
-    key -m deepspec --jams -i my_audio.wav
+    python predict.py audio_file.wav
 
-or,
+By default, this uses the ensemble model which combines both CNN and rule-based predictions.
 
-.. code-block:: console
+Options
+=======
 
-    key -m deepspec_k24 --jams -i my_audio.wav
-
-if you want to use a higher capacity model (some ``k``-values are supported).
-``deepsquare`` and ``shallowspec`` models may also be used.
-
-For estimation using models trained for [2], you may run one of the following
-model specs:
+You can specify different model types and parameters:
 
 .. code-block:: console
 
-    key -m winterreise -i my_audio.wav
-    key -m winterreise_v -i my_audio.wav
-    key -m winterreise_s -i my_audio.wav
-    key -m winterreise_v_fold0 -i my_audio.wav
-    key -m winterreise_s_fold1 -i my_audio.wav
+    python predict.py audio_file.wav --model cnn     # Use only CNN model
+    python predict.py audio_file.wav --model cnn --cnn_model deepsquare  # Use DeepSquare model
+    python predict.py audio_file.wav --model rule    # Use only rule-based model
+    python predict.py audio_file.wav --model ensemble --alpha 0.5  # Weight ensemble more toward averaging
 
-For more model names and split training split definitions, please see the `models directory
-in the GitHub repo <https://github.com/hendriks73/key-cnn/tree/master/keycnn/models>`_
-(just remove the ``.h5`` from the file name to use as model name).
-The groundtruth annotations for Winterreise models may be found
-`here <https://github.com/hendriks73/key-cnn/tree/master/annotations/winterreise>`_.
+Parameters:
 
-For batch processing, you may want to run ``key`` like this:
+- ``--model``: Choose between 'cnn', 'rule', or 'ensemble' (default: ensemble)
+- ``--cnn_model``: Choose between 'deepspec', 'deepsquare', 'shallowspec', or 'winterreise' etc. (default: deepspec)
+- ``--alpha``: Weight for ensemble combination (0 = multiply only, 1 = average only, default: 0.5)
+- ``--top_k``: Number of top predictions to show (default: 5)
 
-.. code-block:: console
+Output
+======
 
-    find /your_audio_dir/ -name '*.wav' -print0 | xargs -0 key -d /output_dir/ -i
+The program outputs:
 
-This will recursively search for all ``.wav`` files in ``/your_audio_dir/``, analyze then
-and write the results to individual files in ``/output_dir/``. Because the model is only
-loaded once, this method of processing is much faster than individual program starts.
-
-Instead of estimating a global key, Key-CNN can also estimate local keys in the
-form of a keygram. This can be useful for identifying modulations.
-To create such a keygram, run
-
-.. code-block:: console
-
-    keygram -p my_audio.wav
-
-As output, ``keygram`` will create a ``.png`` file. Additional options to select different models
-and output formats are available.
-
-You may use the ``--csv`` option to export local key estimates in a parseable format and the
-``--hop-length`` option to change temporal resolution.
-The parameters ``--sharpen`` and ``--norm-frame`` let you post-process the image.
-
+1. The predicted key with confidence score
+2. Top K most confident key predictions with their probabilities
 
 Installation
 ============
 
-Clone this repo and run ``setup.py install`` using Python 3.6:
+Clone this repo and install dependencies:
 
 .. code-block:: console
 
-    git clone https://github.com/hendriks73/key-cnn.git
+    git clone https://github.com/sakemin/key-cnn.git
     cd key-cnn
-    python setup.py install
+    pip install -r requirements.txt
 
-You may need to install TensorFlow using ``pip`` from the command line.
+Required packages (Python 3.7 compatible):
+- numpy==1.16.0
+- scipy>=1.0.1
+- tensorflow==1.15.2
+- librosa>=0.6.2
+- jams>=0.3.1
+- matplotlib>=3.0.0
+- h5py>=2.7.0
+- numba==0.48
+- h5py==2.10.0
 
 License
 =======
 
-Source code and models can be licensed under the GNU AFFERO GENERAL PUBLIC LICENSE v3.
+This project is licensed under the GNU AFFERO GENERAL PUBLIC LICENSE v3.
 For details, please see the `LICENSE <LICENSE>`_ file.
 
+Acknowledgments
+==============
 
-Citation
-========
-
-If you use Key-CNN in your work, please consider citing it.
-ShallowSpec, DeepSpec, and DeepSquare models:
-
-.. code-block:: latex
-
-   @inproceedings{SchreiberM19_CNNKeyTempo_SMC,
-      Title = {Musical Tempo and Key Estimation using Convolutional Neural Networks with Directional Filters},
-      Author = {Hendrik Schreiber and Meinard M{\"u}ller},
-      Booktitle = {Proceedings of the Sound and Music Computing Conference ({SMC})},
-      Pages = {47--54},
-      Year = {2019},
-      Address = {M{\'a}laga, Spain}
-   }
-
-
-All Winterreise [2] models and annotations:
-
-.. code-block:: latex
-
-   @inproceedings{SchreiberWM20_HMMCNNLocalKey_ICASSP,
-      Title = {Local Key Estimation in Classical Music Recordings: A Cross-Version Study on {Schubert's} {Winterreise}},
-      Author = {Hendrik Schreiber, Christof Wei{\ss}, Meinard M{\"u}ller},
-      Booktitle = {Proceedings of the {IEEE} International Conference on Acoustics, Speech, and Signal Processing ({ICASSP})},
-      Year = {2020},
-      Address = {Barcelona, Spain}
-   }
-
-References
-==========
-
-.. [1] Hendrik Schreiber, Meinard Müller, `Musical Tempo and Key Estimation using Convolutional
-    Neural Networks with Directional Filters
-    <http://smc2019.uma.es/articles/P1/P1_07_SMC2019_paper.pdf>`_
-    Proceedings of the Sound and Music Computing Conference (SMC),
-    Málaga, Spain, 2019.
-.. [2] Hendrik Schreiber, Christof Weiß, Meinard Müller, `Local Key Estimation in Classical Music
-    Recordings: A Cross-Version Study on Schubert's Winterreise.
-    <https://ieeexplore.ieee.org/document/9054642>`_
-    Proceedings of the IEEE International Conference on Acoustics, Speech, and Signal Processing (ICASSP),
-    Barcelona, Spain, 2020.
+This project combines approaches from:
+- Original Key-CNN project (https://github.com/hendriks73/key-cnn)
+- Musical Key Finder by Jack McArthur (https://github.com/jackmcarthur/musical-key-finder)
