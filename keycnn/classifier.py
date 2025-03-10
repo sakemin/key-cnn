@@ -44,15 +44,14 @@ class KeyClassifier:
                 return [to_major_minor_key(x) for x in index]
 
             minor = index >= 12
-            midi = index + 12
-            if minor:
-                midi = index - 12
-            tonic = librosa.midi_to_note(midi=midi, octave=False)
+            tonic = librosa.midi_to_note(midi=index, octave=False)
             mode = 'minor' if minor else 'major'
             return tonic, mode
 
         self.to_key = to_major_minor_key
 
+        self.key_index = ["C:maj", "C#:maj", "D:maj", "D#:maj", "E:maj", "F:maj", "F#:maj", "G:maj", "G#:maj", "A:maj", "A#:maj", "B:maj", "C:min", "C#:min", "D:min", "D#:min", "E:min", "F:min", "F#:min", "G:min", "G#:min", "A:min", "A#:min", "B:min"]
+        
         # aliases for specific deep/shallow models
         aliases = {
             'deepspec': 'deepspec_k16',
@@ -138,7 +137,20 @@ class KeyClassifier:
         index = np.argmax(averaged_prediction)
         return self.to_key(index)
 
+    def estimate_key_with_confidence(self, data):
+        """
+        Estimates the pre-dominant global key and its confidence.
 
+        :param data: features
+        :return: a tuple of (key, confidence)
+        """
+        prediction = self.estimate(data)
+        averaged_prediction = np.average(prediction, axis=0)
+        out_dict = {}
+        for k, v in zip(self.key_index, averaged_prediction):
+            out_dict[k] = v
+        return out_dict
+    
 def _to_model_resource(model_name):
     file = model_name
     if not model_name.endswith('.h5'):
