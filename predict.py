@@ -74,6 +74,10 @@ def main():
                        help='Show top K predictions')
     parser.add_argument('--alpha', type=float, default=0.5,
                        help='Weight between 0 and 1 for ensemble combination (0 = only multiply, 1 = only average)')
+    parser.add_argument('--json_out', action='store_true',
+                       help='Save predictions to JSON file')
+    parser.add_argument('--output_path', type=str, default="output/key_prediction.json",
+                       help='Output path for JSON file')
     
     args = parser.parse_args()
     
@@ -85,6 +89,25 @@ def main():
     top_keys = sorted(predictions.items(), key=lambda x: x[1], reverse=True)[:args.top_k]
     for key, conf in top_keys:
         print(f"{key}: {conf:.3f}")
+
+    if args.json_out:
+        # Save predictions to JSON file
+        import os
+        output_path = args.output_path
+    
+        # Format the data for JSON
+        json_data = {
+            "predicted_key": key,
+            "confidence": float(confidence),
+            "top_keys": {k: float(c) for k, c in top_keys}
+        }
+        
+        # Save to JSON file
+        import json
+        with open(output_path, 'w') as f:
+            json.dump(json_data, f, indent=2)
+        
+        print(f"\nPredictions saved to: {output_path}")
 
 if __name__ == '__main__':
     main()

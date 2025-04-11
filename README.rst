@@ -38,6 +38,7 @@ You can specify different model types and parameters:
     python predict.py audio_file.wav --model cnn --cnn_model deepsquare  # Use DeepSquare model
     python predict.py audio_file.wav --model rule    # Use only rule-based model
     python predict.py audio_file.wav --model ensemble --alpha 0.5  # Weight ensemble more toward averaging
+    python predict.py audio_file.wav --model ensemble --alpha 0.5 --json_out  # Save predictions to JSON file
 
 Parameters:
 
@@ -45,6 +46,8 @@ Parameters:
 - ``--cnn_model``: Choose between 'deepspec', 'deepsquare', 'shallowspec', or 'winterreise' etc. (default: deepspec)
 - ``--alpha``: Weight for ensemble combination (0 = multiply only, 1 = average only, default: 0.5)
 - ``--top_k``: Number of top predictions to show (default: 5)
+- ``--json_out``: Save predictions to JSON file
+- ``--output_path``: Path to save the JSON file (default: output/key_prediction.json)
 
 Output
 ======
@@ -96,13 +99,19 @@ Analyze a custom audio file (replace /path/to/your/audiofile.wav with the actual
 
 .. code-block:: console
 
-    docker run -v /path/to/your/audiofile.wav:/app/input.wav key-cnn input.wav
+    docker run -v /path/to/your/audiofile.wav:/app/input.wav key-cnn input.wav --json_out
 
 You can also pass additional parameters:
 
 .. code-block:: console
 
-    docker run -v /path/to/your/audiofile.wav:/app/input.wav key-cnn input.wav --model ensemble --alpha 0.5
+    docker run -v /path/to/your/audiofile.wav:/app/input.wav key-cnn \
+    -v /path/to/output/directory:/app/output \
+    input.wav \
+    --model ensemble \
+    --alpha 0.5 \
+    --json_out \
+    --output_path output/key_prediction.json
 
 License
 =======
