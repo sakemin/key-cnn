@@ -10,10 +10,11 @@ This is a hybrid framework for musical key estimation that combines CNN-based an
 Features
 ========
 
-- Multiple model types:
-  - CNN: Uses deep learning to predict musical key
-  - Rule-based: Uses music theory rules and signal processing
-  - Ensemble: Combines both approaches with weighted averaging
+Multiple model types:
+
+- CNN: Uses deep learning to predict musical key
+- Rule-based: Uses music theory rules and signal processing
+- Ensemble: Combines both approaches with weighted averaging
 
 Basic Usage
 ==========
@@ -65,6 +66,7 @@ Clone this repo and install dependencies:
     pip install -r requirements.txt
 
 Required packages (Python 3.7 compatible):
+
 - numpy==1.16.0
 - scipy>=1.0.1
 - tensorflow==1.15.2
@@ -74,6 +76,33 @@ Required packages (Python 3.7 compatible):
 - h5py>=2.7.0
 - numba==0.48
 - h5py==2.10.0
+
+Docker
+======
+
+Build the Docker image:
+
+.. code-block:: console
+
+    docker build -t key-cnn .
+
+Run with the default configuration:
+
+.. code-block:: console
+
+    docker run key-cnn
+
+Analyze a custom audio file (replace /path/to/your/audiofile.wav with the actual path):
+
+.. code-block:: console
+
+    docker run -v /path/to/your/audiofile.wav:/app/input.wav key-cnn input.wav
+
+You can also pass additional parameters:
+
+.. code-block:: console
+
+    docker run -v /path/to/your/audiofile.wav:/app/input.wav key-cnn input.wav --model ensemble --alpha 0.5
 
 License
 =======

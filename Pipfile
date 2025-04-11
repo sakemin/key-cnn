@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+numpy = "==1.23.0"
+scipy = ">=1.0.1"
+tensorflow = ">=1.15.2"
+librosa = ">=0.6.2"
+jams = ">=0.3.1"
+matplotlib = ">=3.0.0"
+numba = "==0.48"
+h5py = "==2.10.0"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
+python_full_version = "3.7.17"
